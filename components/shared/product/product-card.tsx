@@ -1,10 +1,11 @@
 import {Card, CardContent, CardHeader} from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
-import {StarIcon} from "lucide-react";
 import ProductPrice from "@/components/shared/product/product-price";
+import { Product } from "@/types";
+import { StarIcon } from "lucide-react";
 
-const ProductCard = ({ product }: { product: any; }) => {
+const ProductCard = ({ product }: { product: Product; }) => {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader className="p-0 items-center">

@@ -20,9 +20,7 @@ const ProductCard = ({ product }: { product: Product; }) => {
         </Link>
         <div className="flex-between">
           <div className="flex gap-2">
-            {Array.from({ length: Math.floor(product.rating) }).map((_, i) => (
-              <StarIcon key={i} size={30} color="gray" />
-            ))}
+            {product.rating}
           </div>
           {product.stock > 0 ? (
             <ProductPrice value={Number(product.price)}/>

@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import ProductPrice from "@/components/shared/product/product-price";
 import { Product } from "@/types";
-import { StarIcon } from "lucide-react";
 
 const ProductCard = ({ product }: { product: Product; }) => {
   return (

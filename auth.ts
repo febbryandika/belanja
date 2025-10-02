@@ -62,6 +62,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async jwt({ token, user, trigger, session }: any) {
       if (user) {
+        token.id = user.id;
         token.role = user.role;
 
         if (user.name === "NO_NAME") {
@@ -72,10 +73,49 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             data: {name: token.name},
           })
         }
+
+        if (trigger === "signIn" || trigger === "signUp") {
+          const cookiesObject = await cookies();
+          const sessionCartId = cookiesObject.get("sessionCartId")?.value;
+
+          if (sessionCartId) {
+            const sessionCart = await prisma.cart.findFirst({
+              where: { sessionCartId },
+            });
+
+            if (!sessionCart) {
+              return token;
+            }
+
+            if (sessionCart.userId !== user.id) {
+              await prisma.cart.deleteMany({
+                where: {userId: user.id},
+              });
+
+              await prisma.cart.update({
+                where: {id: sessionCart.id},
+                data: {userId: user.id},
+              })
+            }
+          }
+        }
       }
       return token;
     },
     authorized({ request, auth }: any) {
+      const protectedPath = [
+        /\/shipping-address/,
+        /\/payment-method/,
+        /\/place-order/,
+        /\/profile/,
+        /\/user\/(.*)/,
+        /\/order\/(.*)/,
+        /\/admin/,
+      ];
+
+      const { pathname } = request.nextUrl;
+      if (!auth && protectedPath.some((p) => p.test(pathname))) return false
+
       if (!request.cookies.get("sessionCartId")) {
         const sessionCartId = crypto.randomUUID();
         const newRequestHeaders = new Headers(request.headers);

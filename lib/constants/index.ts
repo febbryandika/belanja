@@ -4,3 +4,5 @@ export const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhos
 
 export const PAYMENT_METHODS = process.env.PAYMENT_METHODS ? process.env.PAYMENT_METHODS.split(", ") : ["Paypal", "Stripe", "CashOnDelivery"];
 export const DEFAULT_PAYMENT_METHOD = process.env.DEFAULT_PAYMENT_METHOD ? process.env.DEAULT_PAYMENT_METHOD : "Paypal";
+
+export const PAGE_SIZE = Number(process.env.PAGE_SIZE) || 10;

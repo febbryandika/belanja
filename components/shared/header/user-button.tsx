@@ -42,7 +42,7 @@ const UserButton = async () => {
         <DropdownMenuContent className="w-56 align-end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <div className="text-sm font-medium leading-none">
+              <div className="text-sm font-bold leading-none">
                 {session.user?.name}
               </div>
               <div className="text-sm text-muted-foreground leading-none">
@@ -50,6 +50,17 @@ const UserButton = async () => {
               </div>
             </div>
           </DropdownMenuLabel>
+          <hr/>
+          <DropdownMenuItem>
+            <Link href="/user/profile" className="w-full">
+              User Profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link href="/user/orders" className="w-full">
+              Order History
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem className="p-0 mb-1">
             <form action={signOutUser} className="w-full">
               <Button className="w-full py-4 px-2 justify-start" variant="ghost">

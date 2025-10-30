@@ -8,10 +8,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Link from "next/link";
 import Image from "next/image";
 import {PayPalButtons, PayPalScriptProvider, usePayPalScriptReducer} from "@paypal/react-paypal-js";
-import {approvePaypalOrder, createPaypalOrder} from "@/lib/actions/order.actions";
+import {approvePaypalOrder, createPaypalOrder, deliverOrder, updateOrderToPaidCOD} from "@/lib/actions/order.actions";
 import {toast} from "sonner";
+import {useTransition} from "react";
+import {Button} from "@/components/ui/button";
 
-const OrderDetailsTable = ({ order, paypalClientId }: { order: Order; paypalClientId: string }) => {
+const OrderDetailsTable = ({ order, paypalClientId, isAdmin }: { order: Order; paypalClientId: string; isAdmin: boolean }) => {
   const {
     id,
     shippingAddress,
@@ -61,6 +63,40 @@ const OrderDetailsTable = ({ order, paypalClientId }: { order: Order; paypalClie
     if (res.success) {
       toast.success(res.message);
     }
+  }
+
+  const MarkAsPaidButton = () => {
+    const [isPending, startTransition] = useTransition();
+
+    return (
+      <Button type="button" disabled={isPending} onClick={() => startTransition(async () => {
+        const res = await updateOrderToPaidCOD(order.id);
+        if (!res.success) {
+          toast.error(res.message);
+        } else {
+          toast.success(res.message);
+        }
+      })}>
+        {isPending ? "processing..." : "Mark As Paid"}
+      </Button>
+    );
+  }
+
+  const MarkAsDeliveredButton = () => {
+    const [isPending, startTransition] = useTransition();
+
+    return (
+      <Button type="button" disabled={isPending} onClick={() => startTransition(async () => {
+        const res = await deliverOrder(order.id);
+        if (!res.success) {
+          toast.error(res.message);
+        } else {
+          toast.success(res.message);
+        }
+      })}>
+        {isPending ? "processing..." : "Mark As Delivered"}
+      </Button>
+    );
   }
 
   return (
@@ -149,6 +185,12 @@ const OrderDetailsTable = ({ order, paypalClientId }: { order: Order; paypalClie
                   <PayPalButtons createOrder={handleCreatePayPalOrder} onApprove={handleApprovePayPalOrder} />
                 </PayPalScriptProvider>
               </div>
+            )}
+            {isAdmin && !isPaid && paymentMethod === "CashOnDelivery" && (
+              <MarkAsPaidButton />
+            )}
+            {isAdmin && isPaid && !isDelivered && (
+              <MarkAsDeliveredButton />
             )}
           </CardContent>
         </Card>

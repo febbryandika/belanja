@@ -37,7 +37,7 @@ export async function generateMetadata(props: {
     price: string;
     rating: string;
   }>
-}) {
+}): Promise<{ title: string } | { title: "Search Products" }> {
   const {q = "all", category = "all", price = "all", rating = "all"} = await props.searchParams;
 
   const isQuerySet = q && q !== "all" && q.trim() !== "";

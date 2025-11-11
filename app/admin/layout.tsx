@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import Menu from "@/components/shared/header/menu";
 import MainNav from "@/app/admin/main-nav";
-import {Input} from "@/components/ui/input";
 import AdminSearch from "@/components/admin/admin-search";
 
 export default function AdminLayout({

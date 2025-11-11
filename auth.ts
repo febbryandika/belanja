@@ -4,15 +4,16 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/db/prisma";
 import { compareSync } from "bcrypt-ts-edge";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { authConfig } from './auth.config';
 
+// @ts-expect-error - next-auth v5 beta type issue
 export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: "/sign-in",
     error: "/sign-in",
   },
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as const,
     maxAge: 30 * 24 * 60 * 60,
   },
   adapter: PrismaAdapter(prisma),
@@ -49,6 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     })
   ],
   callbacks: {
+    ...authConfig.callbacks,
     async session({ session, user, trigger, token }: any) {
       session.user.id = token.sub;
       session.user.role = token.role;
@@ -107,34 +109,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return token;
     },
-    authorized({ request, auth }: any) {
-      const protectedPath = [
-        /\/shipping-address/,
-        /\/payment-method/,
-        /\/place-order/,
-        /\/profile/,
-        /\/user\/(.*)/,
-        /\/order\/(.*)/,
-        /\/admin/,
-      ];
-
-      const { pathname } = request.nextUrl;
-      if (!auth && protectedPath.some((p) => p.test(pathname))) return false
-
-      if (!request.cookies.get("sessionCartId")) {
-        const sessionCartId = crypto.randomUUID();
-        const newRequestHeaders = new Headers(request.headers);
-        const response = NextResponse.next({
-          request: {
-            headers: newRequestHeaders,
-          },
-        });
-
-        response.cookies.set("sessionCartId", sessionCartId);
-        return response;
-      } else {
-        return true;
-      }
-    }
   }
 });
